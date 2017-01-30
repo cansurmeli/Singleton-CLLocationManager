@@ -5,7 +5,7 @@ One example of Swift’s expressiveness is writing a singleton object. It’s ea
 
 If you’d like some more detailed explanation, I suggest you check out the resources section below.
 
-## Requirements
+## Requirementssssss
 
 - Xcode 6 or higher
 - Swift 1.2 or above
