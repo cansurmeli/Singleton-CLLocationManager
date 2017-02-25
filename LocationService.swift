@@ -1,61 +1,50 @@
 //
 //
-//  Can Sürmeli (c_surmeli@icloud.com - cansurmeli.com)
-//  LocationService.swift
-//  How to use CLLocationManager as a singleton object with Swift.
-//  https://github.com/cansurmeli/Singleton-CLLocationManager
+//  FILE: LocationService.swift
+//  AUTHOR: Can Sürmeli (c_surmeli@icloud.com - cansurmeli.com)
+//  DESCRIPTION: How to use CLLocationManager as a singleton object with Swift. Modify according
+//  to your needs.
+//  SOURCE: https://github.com/cansurmeli/Singleton-CLLocationManager
+//
+//
+//  IMPORTANT
+//	  You MUST include one of the keys below in your Info.plist file with an appropiate description
+//	according to the respected permission you've asked for. Otherwise CoreLocation won't function!
+//
+//	  - NSLocationWhenInUseUsageDescription - <your_description>
+//	  - NSLocationAlwaysUsageDescription - <your_description>					(required by iBeacon usage)
 //
 
 import Foundation
 import CoreLocation
 
 class LocationService: NSObject, CLLocationManagerDelegate {
-  static let sharedInstance = LocationService()     // Swift way of singleton :]
+  static let shared = LocationService()     // Swifty way of singleton :]
 
-  private var locationManager: CLLocationManager!
-  private var currentLocation: CLLocationCoordinate2D!
+	// set the manager object right when it gets initialized
+  private let manager: CLLocationManager = {
+		$0.desiredAccuracy = kCLLocationAccuracyBestForNavigation
+		$0.distanceFilter = 1
+		$0.requestWhenInUseAuthorization()
+								
+		return $0
+	}(CLLocationManager())
+	
+  private(set) var currentLocation: CLLocationCoordinate2D!
+	private(set) var currentHeading: CLHeading!
 
   private override init() {
     super.init()
 
-    locationManager = CLLocationManager()
+		// delegate MUST be set while initializing
+    manager.delegate = self
 
-    // iBeacons require always authorization!!! - modify according to your needs
-    locationManager.requestAlwaysAuthorization()
-
-    locationManager.delegate = self
-
-    locationManager.desiredAccuracy = kCLLocationAccuracyBest
-    locationManager.headingFilter = kCLHeadingFilterNone
-    locationManager.distanceFilter = 1
-
-    // updates MUST start here otherwise data state won't be intact!!!
-    locationManager.startUpdatingLocation()
-    locationManager.startUpdatingHeading()
+    // updates MUST start here
+    manager.startUpdatingLocation()
+    manager.startUpdatingHeading()
   }
 
-  // MARK: Control Methods
-  func startUpdatingLocation() {
-    locationManager.startUpdatingLocation()
-    print("Location updates are started.")
-  }
-
-  func stopUpdatingLocation() {
-    locationManager.stopUpdatingLocation()
-    print("Location updates are stopped.")
-  }
-
-  func startUpdatingHeading() {
-    locationManager.startUpdatingHeading()
-    print("Compass updates are started.")
-  }
-
-  func stopUpdatingHeading() {
-    locationManager.stopUpdatingHeading()
-    print("Compass updates are stopped.")
-  }
-
-  // MARK: CoreLocation Location Updates
+  // MARK: Location Updates
   func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
     // If location data can be determined
     if let location = locations.last! as CLLocation! {
@@ -64,24 +53,15 @@ class LocationService: NSObject, CLLocationManagerDelegate {
   }
 
   func locationManager(manager: CLLocationManager, didFailWithError error: NSError) {
-    print("Location Manager: \(error)")
+    print("Location Manager Error: \(error)")
   }
 
-  // MARK: CoreLocation Heading Updates
+  // MARK: Heading Updates
   func locationManager(manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
-    print(newHeading)
+    currentHeading = newHeading
   }
 
   func locationManagerShouldDisplayHeadingCalibration(manager: CLLocationManager) -> Bool {
     return true
-  }
-
-  // MARK: Access Methods
-  func getCurrentLocation() -> CLLocationCoordinate2D! {
-    return currentLocation
-  }
-
-  func getCurrentDirection() -> StepDirection! {
-    return currentDirection
   }
 }
