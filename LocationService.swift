@@ -22,7 +22,7 @@ class LocationService: NSObject, CLLocationManagerDelegate {
   static let shared = LocationService()     // Swifty way of singleton :]
 
 	// set the manager object right when it gets initialized
-  private let manager: CLLocationManager = {
+  let manager: CLLocationManager = {
 		$0.desiredAccuracy = kCLLocationAccuracyBestForNavigation
 		$0.distanceFilter = 1
 		$0.requestWhenInUseAuthorization()
